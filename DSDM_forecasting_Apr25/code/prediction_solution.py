@@ -74,6 +74,9 @@ features = [
 
 X = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True, how='inner'), features)
 
+#make sure there are no NAs in the features
+assert X.isna().sum().sum() == 0, "There are NAs in the features. Please check your data."
+
 #save features
 X.to_csv(f'{output_path}/features.csv')
 
@@ -99,6 +102,9 @@ inc_final_preds = inc_ps.gen_test_labels(inc_df.merge(X['violence_since_0'], lef
 print("Running incidence prediction...")
 
 start_incidence_time = time.time()
+
+#before running predictions, check that the indices of the target and features are the same
+assert inc_df.index.equals(X.index), "Indices of target and features do not match. Please check your data."
 
 inc_preds, fitted_estimators_inc = cross_val_fit_predict(
     estimator=RandomForestClassifier(max_depth=4, max_features=0.2, min_samples_leaf=100, n_jobs=-1, random_state=42),
@@ -142,6 +148,9 @@ ons_final_preds = ons_ps.gen_test_labels(ons_df.merge(X['violence_since_0'], lef
 print("Running onset prediction...")
 
 start_onset_time = time.time()
+
+#before running predictions, check that the indices of the target and features are the same
+assert ons_df.index.equals(X.index), "Indices of target and features do not match. Please check your data."
 
 ons_preds, fitted_estimators_ons = cross_val_fit_predict(
     estimator=RandomForestClassifier(max_depth=4, max_features=0.2, min_samples_leaf=100, n_jobs=-1, random_state=42),
